@@ -13,7 +13,7 @@ class Person(models.Model):
     FirstName = models.CharField(max_length=32)
     MiddleName = models.CharField(max_length=32)
     LastName = models.CharField(max_length=32)
-    Birthday = models.DateField(blank=True, null=True)
+    Birthday = models.DateTimeField(blank=True, null=True)
     BloodType = models.CharField(max_length=4)
     Address = models.TextField(default='', blank=True)
     Photo = models.ImageField(null=True)
