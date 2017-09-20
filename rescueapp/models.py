@@ -14,7 +14,8 @@ class Person(models.Model):
     FirstName = models.CharField(max_length=32)
     MiddleName = models.CharField(max_length=32)
     LastName = models.CharField(max_length=32)
-    Birthday = models.CharField(max_length=32, null=True, blank=True)
+    Birthday = models.CharField(
+        max_length=16, blank=True, null=True, default='')
     BloodType = models.CharField(max_length=4)
     Address = models.TextField(default='', blank=True)
     Photo = models.ImageField(null=True)
