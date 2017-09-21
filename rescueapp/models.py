@@ -20,7 +20,10 @@ class Person(models.Model):
     Address = models.TextField(default='', blank=True)
     Photo = models.ImageField(null=True)
     Contact = models.CharField(max_length=32)
-    Sickness = models.CharField(max_length=128, blank=True, default='')
+    Email = models.EmailField()
+    Vulnerabilities = models.TextField()
+    IDNumber = models.CharField(max_length=128, blank=True, default='None')
+    Sickness = models.CharField(max_length=128, blank=True, default='None')
     Members = models.TextField()
 
 
