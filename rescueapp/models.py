@@ -20,7 +20,7 @@ class Person(models.Model):
     Address = models.TextField(default='', blank=True)
     Photo = models.ImageField(null=True)
     Contact = models.CharField(max_length=32)
-    Sickness = models.CharField(max_length=128)
+    Sickness = models.CharField(max_length=128, blank=True, default='')
     Members = models.TextField()
 
 
