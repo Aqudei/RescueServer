@@ -19,6 +19,9 @@ class Person(models.Model):
     BloodType = models.CharField(max_length=4)
     Address = models.TextField(default='', blank=True)
     Photo = models.ImageField(null=True)
+    Contact = models.CharField(max_length=32)
+    Sickness = models.CharField(max_length=128)
+    Members = models.TextField()
 
 
 class Incident(models.Model):
