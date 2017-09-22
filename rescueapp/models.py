@@ -10,6 +10,12 @@ class EvacuationCenter(models.Model):
     Photo = models.ImageField(null=True)
 
 
+class Household(models.Model):
+    Address = models.CharField(max_length=128)
+    EconomicStatus = models.CharField(max_length=32, blank=True, null=True)
+    HouseNumber = models.CharField(max_length=8)
+
+
 class Person(models.Model):
     FirstName = models.CharField(max_length=32)
     MiddleName = models.CharField(max_length=32)
@@ -17,14 +23,30 @@ class Person(models.Model):
     Birthday = models.CharField(
         max_length=16, blank=True, null=True, default='')
     BloodType = models.CharField(max_length=4)
-    Address = models.TextField(default='', blank=True)
     Photo = models.ImageField(null=True)
     Contact = models.CharField(max_length=32)
-    Email = models.EmailField()
-    Vulnerabilities = models.TextField()
-    IDNumber = models.CharField(max_length=128, blank=True, default='None')
-    Sickness = models.CharField(max_length=128, blank=True, default='None')
-    Members = models.TextField()
+    Email = models.EmailField(null=True, blank=True)
+    Vulnerabilities = models.TextField(null=True, blank=True)
+    NationalIdNumber = models.CharField(
+        max_length=128, blank=True, default='None')
+    _Household = models.ForeignKey(
+        Household, related_name='members', null=True)
+    IsHead = models.BooleanField(default=False)
+    Gender = models.CharField(max_length=8, default='MALE')
+    EducationalAttainment = models.CharField(
+        max_length=64, blank=True, null=True)
+    Allergies = models.CharField(max_length=64, blank=True, null=True)
+    CivilStatus = models.CharField(max_length=64, default='SINGLE')
+    Occupation = models.CharField(max_length=64, blank=True, null=True)
+    # MedicalRecord
+    Allergies = models.CharField(blank=True, null=True, max_length=64)
+    MedicalCondition = models.CharField(blank=True, null=True, max_length=64)
+    MedicineRequired = models.CharField(blank=True, null=True, max_length=64)
+
+    def __is_vulnerable(self):
+        return len(self.Vulnerabilities) > 0
+
+    is_vulnerable = property(__is_vulnerable)
 
 
 class Incident(models.Model):
