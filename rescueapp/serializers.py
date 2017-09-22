@@ -1,4 +1,5 @@
-from .models import CheckIn, EvacuationCenter,  Incident,  Person
+from .models import CheckIn, EvacuationCenter,  Incident
+from .models import Person, Household
 from rest_framework.serializers import ModelSerializer
 
 
@@ -17,4 +18,10 @@ class CenterSerializer(ModelSerializer):
 class IncidentSerializer(ModelSerializer):
     class Meta:
         model = Incident
+        fields = '__all__'
+
+
+class HouseholdSerializer(ModelSerializer):
+    class Meta:
+        model = Household
         fields = '__all__'
