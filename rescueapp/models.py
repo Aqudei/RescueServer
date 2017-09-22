@@ -10,19 +10,13 @@ class EvacuationCenter(models.Model):
     Photo = models.ImageField(null=True)
 
 
-class Household (models.Model):
-    Barangay = models.CharField(max_length=24)
-    HouseholdNumber = models.IntegerField()
-    Category = models.CharField(max_length=16)
-    Location = models.CharField(max_length=16)
-    Address = models.TextField()
-    Photo = models.ImageField(null=True)
+class Household(models.Model):
+    Address = models.CharField(max_length=128)
+    EconomicStatus = models.CharField(max_length=32, blank=True, null=True)
+    HouseNumber = models.CharField(max_length=8)
 
 
 class Person(models.Model):
-    _Household = models.ForeignKey(
-        Household, null=True, related_name='members')
-    IsHead = models.BooleanField(default=False)
     FirstName = models.CharField(max_length=32)
     MiddleName = models.CharField(max_length=32)
     LastName = models.CharField(max_length=32)
@@ -31,11 +25,28 @@ class Person(models.Model):
     BloodType = models.CharField(max_length=4)
     Photo = models.ImageField(null=True)
     Contact = models.CharField(max_length=32)
-    Email = models.EmailField(null=True)
-    Vulnerabilities = models.TextField(blank=True, null=True)
-    IDNumber = models.CharField(max_length=128, blank=True, null=True)
-    Sickness = models.CharField(max_length=128, blank=True, null=True)
-    Sex = models.CharField(max_length=8)
+    Email = models.EmailField(null=True, blank=True)
+    Vulnerabilities = models.TextField(null=True, blank=True)
+    NationalIdNumber = models.CharField(
+        max_length=128, blank=True, default='None')
+    _Household = models.ForeignKey(
+        Household, related_name='members', null=True)
+    IsHead = models.BooleanField(default=False)
+    Gender = models.CharField(max_length=8, default='MALE')
+    EducationalAttainment = models.CharField(
+        max_length=64, blank=True, null=True)
+    Allergies = models.CharField(max_length=64, blank=True, null=True)
+    CivilStatus = models.CharField(max_length=64, default='SINGLE')
+    Occupation = models.CharField(max_length=64, blank=True, null=True)
+    # MedicalRecord
+    Allergies = models.CharField(blank=True, null=True, max_length=64)
+    MedicalCondition = models.CharField(blank=True, null=True, max_length=64)
+    MedicineRequired = models.CharField(blank=True, null=True, max_length=64)
+
+    def __is_vulnerable(self):
+        return len(self.Vulnerabilities) > 0
+
+    is_vulnerable = property(__is_vulnerable)
 
 
 class Incident(models.Model):
