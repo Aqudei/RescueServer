@@ -1,5 +1,5 @@
-djangenv
-images
+djangenv/
+images/
 db.sqlite3
 
 # Byte-compiled / optimized / DLL files
