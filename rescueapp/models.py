@@ -28,7 +28,7 @@ class Person(models.Model):
     Email = models.EmailField(null=True, blank=True)
     Vulnerabilities = models.TextField(null=True, blank=True)
     NationalIdNumber = models.CharField(
-        max_length=128, blank=True, default='None')
+        max_length=128, blank=True, null=True)
     _Household = models.ForeignKey(
         Household, related_name='members', null=True)
     IsHead = models.BooleanField(default=False)
