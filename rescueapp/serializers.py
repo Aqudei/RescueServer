@@ -22,6 +22,8 @@ class IncidentSerializer(serializers.ModelSerializer):
 
 
 class HouseholdSerializer(serializers.ModelSerializer):
+    members = PersonSerializer(many=True, read_only=True)
+
     class Meta:
         model = Household
         fields = '__all__'
