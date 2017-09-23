@@ -16,9 +16,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
-from .viewset import PersonViewSet, CenterViewSet
+from .viewset import PersonViewSet, CenterViewSet, HouseholdViewSet
+from .views import ImageAPIView
 
 router = routers.DefaultRouter()
 router.register(r'people', PersonViewSet, base_name='person')
 router.register(r'centers', CenterViewSet, base_name='center')
+router.register(r'households', HouseholdViewSet, base_name='household')
 urlpatterns = router.urls
+urlpatterns += [url(r'^upload/(\d+)', ImageAPIView.as_view()), ]
