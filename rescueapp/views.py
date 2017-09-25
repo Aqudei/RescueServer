@@ -5,23 +5,24 @@ from . import models
 from . import serializers
 from rest_framework import status
 
+NumberOfPerson = "NumberOfPerson"
+NumberOfHousehold = "NumberOfHousehold"
+NumberOfEvacuation = "NumberOfEvacuation"
+NumberOfCalamities = "NumberOfCalamities"
 
-class ImageAPIView(APIView):
 
-    def patch(self, request, pk):
-        target_model = request.data['model']
-        if target_model == 'Person':
-            person = models.Person.objects.get(pk=int(pk))
-            person.Photo = request.data['Photo']
-            person.save()
-            serializer = serializers.PersonSerializer(person.__dict__)
+class StatisticsAPIView(APIView):
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        elif target_model == 'Center':
-            center = models.EvacuationCenter.objects.get(pk=int(pk))
-            center.Photo = request.data['Photo']
-            center.save()
-            serializer = serializers.CenterSerializer(center)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
+        stats = dict()
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        stats[NumberOfPerson] = models.Person.objects.count()
+        stats[NumberOfHousehold] = models.Household.objects.count()
+        stats[NumberOfEvacuation] = models.EvacuationCenter.objects.count()
+        stats[NumberOfCalamities] = models.Incident.objects.count()
+
+        serializer = serializers.StatisticsSerializer(data=stats)
+        if serializer.is_valid():
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
