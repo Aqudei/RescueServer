@@ -31,6 +31,8 @@ class Person(models.Model):
         max_length=128, blank=True, null=True)
     _Household = models.ForeignKey(
         Household, related_name='members', null=True)
+    _Center = models.ForeignKey(
+        EvacuationCenter, related_name='members', null=True)
     IsHead = models.BooleanField(default=False)
     Gender = models.CharField(max_length=8, default='MALE')
     EducationalAttainment = models.CharField(

@@ -22,6 +22,28 @@ class PersonViewSet(ModelViewSet, UploadMixin):
     queryset = models.Person.objects.all()
     serializer_class = serializers.PersonSerializer
 
+    @detail_route
+    def check_in(self, request, pk=None):
+        person = self.get_object()
+        incident = models.Incident.objects.filter(
+            IsActive=True).first()
+
+        if incident is not None:
+            center = person._Center
+
+            checkin = models.CheckIn.objects.create(
+                Incident=incident,
+                Person=person,
+                center=center
+            )
+
+            serializer = serializers.IncidentSerializer(data=incident)
+            if serializer.is_valid():
+                return response.Response(serializer.data)
+            else:
+                return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class CenterViewSet(ModelViewSet):
     queryset = models.EvacuationCenter.objects.all()
@@ -39,7 +61,7 @@ class IncidentsViewSet(ModelViewSet):
 
     @detail_route(methods=['patch', ])
     def set_active(self, request, pk=None):
-     
+
         incident = models.Incident.objects.filter(IsActive=True).first()
         if incident is not None:
             incident.IsActive = False
@@ -55,4 +77,3 @@ class IncidentsViewSet(ModelViewSet):
         serializer = serializers.IncidentSerializer(data=incidents, many=True)
         serializer.is_valid()
         return response.Response(serializer.data)
-    
