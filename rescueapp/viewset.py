@@ -55,3 +55,4 @@ class IncidentsViewSet(ModelViewSet):
         serializer = serializers.IncidentSerializer(data=incidents, many=True)
         serializer.is_valid()
         return response.Response(serializer.data)
+    
