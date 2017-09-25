@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import detail_route
-from .models import Person, CheckIn, EvacuationCenter, Incident, Household
-from .serializers import PersonSerializer, CenterSerializer, HouseholdSerializer, PhotoSerializer
+from . import models, serializers
 from rest_framework import status, response
+import json
 # Create your views here.
 
 
@@ -19,15 +19,39 @@ class UploadMixin:
 
 
 class PersonViewSet(ModelViewSet, UploadMixin):
-    queryset = Person.objects.all()
-    serializer_class = PersonSerializer
+    queryset = models.Person.objects.all()
+    serializer_class = serializers.PersonSerializer
 
 
 class CenterViewSet(ModelViewSet):
-    queryset = EvacuationCenter.objects.all()
-    serializer_class = CenterSerializer
+    queryset = models.EvacuationCenter.objects.all()
+    serializer_class = serializers.CenterSerializer
 
 
 class HouseholdViewSet(ModelViewSet):
-    queryset = Household.objects.all()
-    serializer_class = HouseholdSerializer
+    queryset = models.Household.objects.all()
+    serializer_class = serializers.HouseholdSerializer
+
+
+class IncidentsViewSet(ModelViewSet):
+    queryset = models.Incident.objects.all()
+    serializer_class = serializers.IncidentSerializer
+
+    @detail_route(methods=['patch', ])
+    def set_active(self, request, pk=None):
+     
+        incident = models.Incident.objects.filter(IsActive=True).first()
+        if incident is not None:
+            incident.IsActive = False
+            incident.save()
+
+        incident2 = models.Incident.objects.get(id=pk)
+        incident2.IsActive = True
+        incident2.save()
+
+        incidents = models.Incident.objects.filter(
+            id__in=[incident.id, incident2.id])
+        print(incidents)
+        serializer = serializers.IncidentSerializer(data=incidents, many=True)
+        serializer.is_valid()
+        return response.Response(serializer.data)

@@ -25,3 +25,8 @@ class ImageAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class CheckIn(APIView):
+    pass
+
+    def post(self, request)

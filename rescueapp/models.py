@@ -53,6 +53,7 @@ class Incident(models.Model):
     IncidentName = models.CharField(max_length=32)
     DateOccured = models.DateTimeField(auto_now_add=True)
     Photo = models.ImageField(null=True)
+    IsActive = models.BooleanField(default=False)
 
 
 class CheckIn(models.Model):
