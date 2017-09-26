@@ -53,19 +53,26 @@ class PersonViewSet(ModelViewSet, UploadMixin):
     queryset = models.Person.objects.all()
     serializer_class = serializers.PersonSerializer
 
-    @detail_route(methods=['post', ])
-    def set_membership(self, request, pk=None):
+    @detail_route(methods=['patch', ])
+    def toggle_membership(self, request, pk=None):
+
+        person = self.get_object()
         household = models.Household.objects.get(
             pk=request.data['household_id'])
-        person = self.get_object()
-        person._Household = household
+        
+        print(household)
+
+        if person._Household is not None and \
+                person._Household.id == household.id:
+            person._Household = None
+        else:
+            person._Household = household
+
         person.save()
-
-        serializer = serializers.HouseholdSerializer(data=household)
-        if serializer.is_valid():
-            return response.Response(serializer.data, status=status.HTTP_200_OK)
-
-        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        household.refresh_from_db()
+        serializer = serializers.HouseholdSerializer(household)
+        return response.Response(serializer.data)
 
     @detail_route
     def check_in(self, request, pk=None):
