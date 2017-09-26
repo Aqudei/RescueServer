@@ -53,6 +53,27 @@ class PersonViewSet(ModelViewSet, UploadMixin):
     queryset = models.Person.objects.all()
     serializer_class = serializers.PersonSerializer
 
+    @detail_route(methods=['patch', ])
+    def toggle_membership(self, request, pk=None):
+
+        person = self.get_object()
+        household = models.Household.objects.get(
+            pk=request.data['household_id'])
+        
+        print(household)
+
+        if person._Household is not None and \
+                person._Household.id == household.id:
+            person._Household = None
+        else:
+            person._Household = household
+
+        person.save()
+        
+        household.refresh_from_db()
+        serializer = serializers.HouseholdSerializer(household)
+        return response.Response(serializer.data)
+
     @detail_route
     def check_in(self, request, pk=None):
 

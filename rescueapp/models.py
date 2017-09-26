@@ -14,7 +14,7 @@ class Household(models.Model):
     Address = models.CharField(max_length=128)
     EconomicStatus = models.CharField(max_length=32, blank=True, null=True)
     HouseNumber = models.CharField(max_length=8)
-
+    IsOwned = models.BooleanField(default=True)
 
 class Person(models.Model):
     FirstName = models.CharField(max_length=32)
