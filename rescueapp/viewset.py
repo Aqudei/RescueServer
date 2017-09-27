@@ -108,7 +108,7 @@ class CenterViewSet(MultiSerializerViewSetMixin, UploadMixin,  ModelViewSet):
     }
 
 
-class HouseholdViewSet(ModelViewSet):
+class HouseholdViewSet(ModelViewSet, UploadMixin):
     queryset = models.Household.objects.all()
     serializer_class = serializers.HouseholdSerializer
 
