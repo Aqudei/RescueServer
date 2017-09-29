@@ -54,13 +54,28 @@ class PersonViewSet(ModelViewSet, UploadMixin):
     serializer_class = serializers.PersonSerializer
 
     @detail_route(methods=['patch', ])
+    def toggle_evacuation_membership(self, request, pk=None):
+        person = self.get_object()
+        center = models.EvacuationCenter.objects.get(
+            pk=request.data['center_id'])
+
+        if person._Center is not None and \
+                person._Center == center:
+            person._Center = None
+        else:
+            person._Center = center
+
+        person.save()
+        center.refresh_from_db()
+        serializer = serializers.CenterSerializer(center)
+        return response.Response(serializer.data)
+
+    @detail_route(methods=['patch', ])
     def toggle_membership(self, request, pk=None):
 
         person = self.get_object()
         household = models.Household.objects.get(
             pk=request.data['household_id'])
-
-        print(household)
 
         if person._Household is not None and \
                 person._Household.id == household.id:
@@ -87,7 +102,7 @@ class PersonViewSet(ModelViewSet, UploadMixin):
             checkin = models.CheckIn.objects.create(
                 Incident=incident,
                 Person=person,
-                center=center
+                Center=center
             )
 
             serializer = serializers.IncidentSerializer(incident)

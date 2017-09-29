@@ -8,8 +8,10 @@ class EvacuationCenter(models.Model):
     Address = models.TextField()
     Limit = models.IntegerField(default=100)
     Photo = models.ImageField(null=True)
-    Longitude = models.DecimalField(null=True, max_digits=8, decimal_places=8)
-    Latitude = models.DecimalField(null=True, max_digits=8, decimal_places=8)
+    Longitude = models.DecimalField(
+        null=True, max_digits=18, decimal_places=15)
+    Latitude = models.DecimalField(
+        null=True, max_digits=18, decimal_places=15)
 
 
 class Household(models.Model):

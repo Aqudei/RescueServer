@@ -16,16 +16,20 @@ class PersonWriterSerializer(serializers.ModelSerializer):
 
 
 class CenterSerializer(serializers.ModelSerializer):
+    members = PersonSerializer(many=True, read_only=True)
+
     class Meta:
         model = models.EvacuationCenter
         fields = '__all__'
-
 
 class CenterWriterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EvacuationCenter
         exclude = ('Photo',)
 
+class CenterMonitoringSerializer(serializers.Serializer):
+    center = CenterWriterSerializer(read_only=False, many=False)
+    num_evacuees = serializers.IntegerField()
 
 class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,6 +60,7 @@ class StatisticsSerializer(serializers.Serializer):
     NumberOfHousehold = serializers.IntegerField(default=0)
     NumberOfEvacuation = serializers.IntegerField(default=0)
     NumberOfCalamities = serializers.IntegerField(default=0)
+
 
 class CheckInSerializer(serializers.ModelSerializer):
 

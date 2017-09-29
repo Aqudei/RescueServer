@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from . import models
 from . import serializers
 from rest_framework import status
+from django.db import models as djangomodels
 
 NumberOfPerson = "NumberOfPerson"
 NumberOfHousehold = "NumberOfHousehold"
@@ -26,3 +27,26 @@ class StatisticsAPIView(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MonitoringAPIView(APIView):
+
+    def get(self, request):
+
+        currentIncident = models.Incident.objects.get(IsActive=True)
+        centers = models.EvacuationCenter.objects.all()
+        datas = list()
+        for c in centers:
+            data = dict()
+            data['center'] = c.__dict__
+            data['num_evacuees'] = models.CheckIn.objects.filter(
+                Incident=currentIncident, Center=c).count()
+            datas.append(data)
+
+        serializer = serializers.CenterMonitoringSerializer(
+            data=datas, many=True)
+        if serializer.is_valid():
+            return Response(serializer.data,  status=status.HTTP_200_OK)
+        else:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
