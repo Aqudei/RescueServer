@@ -8,6 +8,8 @@ class EvacuationCenter(models.Model):
     Address = models.TextField()
     Limit = models.IntegerField(default=100)
     Photo = models.ImageField(null=True)
+    Longitude = models.DecimalField(null=True, max_digits=8, decimal_places=8)
+    Latitude = models.DecimalField(null=True, max_digits=8, decimal_places=8)
 
 
 class Household(models.Model):
@@ -16,6 +18,7 @@ class Household(models.Model):
     HouseNumber = models.CharField(max_length=8)
     IsOwned = models.BooleanField(default=True)
     Photo = models.ImageField(null=True)
+
 
 class Person(models.Model):
     FirstName = models.CharField(max_length=32)

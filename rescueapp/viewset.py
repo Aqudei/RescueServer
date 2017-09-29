@@ -59,7 +59,7 @@ class PersonViewSet(ModelViewSet, UploadMixin):
         person = self.get_object()
         household = models.Household.objects.get(
             pk=request.data['household_id'])
-        
+
         print(household)
 
         if person._Household is not None and \
@@ -69,12 +69,12 @@ class PersonViewSet(ModelViewSet, UploadMixin):
             person._Household = household
 
         person.save()
-        
+
         household.refresh_from_db()
         serializer = serializers.HouseholdSerializer(household)
         return response.Response(serializer.data)
 
-    @detail_route
+    @detail_route(methods=['post', ])
     def check_in(self, request, pk=None):
 
         person = self.get_object()
@@ -90,11 +90,9 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                 center=center
             )
 
-            serializer = serializers.IncidentSerializer(data=incident)
-            if serializer.is_valid():
-                return response.Response(serializer.data)
-            else:
-                return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = serializers.IncidentSerializer(incident)
+            return response.Response(serializer.data)
+
         return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -117,21 +115,51 @@ class IncidentsViewSet(ModelViewSet):
     queryset = models.Incident.objects.all()
     serializer_class = serializers.IncidentSerializer
 
+    serializer_action_classes = {
+        'create': serializers.IncidentWriterSerializer,
+        'update': serializers.IncidentWriterSerializer,
+    }
+
     @detail_route(methods=['patch', ])
     def set_active(self, request, pk=None):
 
-        incident = models.Incident.objects.filter(IsActive=True).first()
-        if incident is not None:
-            incident.IsActive = False
-            incident.save()
+        incident2 = self.get_object()
+        incident = models.Incident.objects.filter(
+            IsActive=True).first()
 
-        incident2 = models.Incident.objects.get(id=pk)
-        incident2.IsActive = True
-        incident2.save()
+        if incident is None:
+            incident2.IsActive = True
+            incident2.save()
+            serializer = serializers.IncidentSerializer(incident2)
+            return response.Response(serializer.data)
+        else:
+            if not incident == incident2:
+                incident.IsActive = False
+                incident2.IsActive = True
+                incident.save()
+                incident2.save()
 
-        incidents = models.Incident.objects.filter(
-            id__in=[incident.id, incident2.id])
-        print(incidents)
-        serializer = serializers.IncidentSerializer(data=incidents, many=True)
-        serializer.is_valid()
-        return response.Response(serializer.data)
+                incidents = models.Incident.objects.filter(
+                    id__in=[incident.id, incident2.id])
+
+                serializer = serializers.IncidentSerializer(
+                    incidents, many=True)
+
+                return response.Response(serializer.data)
+
+        return response.Response()
+
+    @detail_route(methods=['patch', ])
+    def toggle(self, request, pk=None):
+
+        current_incident = self.get_object()
+        desired = not current_incident.IsActive
+
+        # deactivate
+        if desired == False:
+            current_incident.IsActive = False
+            current_incident.save()
+            serializer = serializers.IncidentSerializer(current_incident)
+            return response.Response(serializer.data)
+        else:
+            return self.set_active(request, pk)
