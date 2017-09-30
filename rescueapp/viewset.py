@@ -118,6 +118,7 @@ class CenterViewSet(MultiSerializerViewSetMixin, UploadMixin,  ModelViewSet):
     serializer_action_classes = {
         'create': serializers.CenterWriterSerializer,
         'update': serializers.CenterWriterSerializer,
+        'partial_update': serializers.CenterWriterSerializer,
     }
 
 
