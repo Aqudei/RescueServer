@@ -50,6 +50,8 @@ class Person(models.Model):
     Allergies = models.CharField(blank=True, null=True, max_length=64)
     MedicalCondition = models.CharField(blank=True, null=True, max_length=64)
     MedicineRequired = models.CharField(blank=True, null=True, max_length=64)
+    NamePrefix = models.CharField(blank=True, null=True, max_length=8)
+    NameSuffix = models.CharField(blank=True, null=True, max_length=8)
 
     def __is_vulnerable(self):
         return len(self.Vulnerabilities) > 0
