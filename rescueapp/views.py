@@ -38,18 +38,14 @@ class MonitoringAPIView(APIView):
         datas = list()
         for c in centers:
             data = dict()
-            data['center'] = c.__dict__
+            data['center'] = c
             data['num_evacuees'] = models.CheckIn.objects.filter(
                 Incident=currentIncident, Center=c).count()
             datas.append(data)
 
-        serializer = serializers.CenterMonitoringSerializer(
-            data=datas, many=True)
-        if serializer.is_valid():
-            return Response(serializer.data,  status=status.HTTP_200_OK)
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = serializers.CenterMonitoringSerializer(datas, many=True)
+
+        return Response(serializer.data,  status=status.HTTP_200_OK)
 
 
 class MonitoringDetailAPIView(APIView):
@@ -63,7 +59,8 @@ class MonitoringDetailAPIView(APIView):
             Center=currentCenter, Incident=currentIncident).values_list(
                 'Person', flat=True)
 
-        persons_checked_in = models.Person.objects.filter(id__in=ids_person_chkin)
+        persons_checked_in = models.Person.objects.filter(
+            id__in=ids_person_chkin)
 
         data = dict()
         data['center'] = currentCenter
