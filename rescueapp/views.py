@@ -1,5 +1,6 @@
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
+
 from rest_framework.response import Response
 from . import models
 from . import serializers
@@ -32,7 +33,6 @@ class StatisticsAPIView(APIView):
 class MonitoringAPIView(APIView):
 
     def get(self, request):
-
         currentIncident = models.Incident.objects.get(IsActive=True)
         centers = models.EvacuationCenter.objects.all()
         datas = list()
@@ -50,3 +50,25 @@ class MonitoringAPIView(APIView):
         else:
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MonitoringDetailAPIView(APIView):
+
+    def get(self, request, pk=None):
+
+        currentIncident = models.Incident.objects.get(IsActive=True)
+        currentCenter = models.EvacuationCenter.objects.get(pk=pk)
+
+        ids_person_chkin = models.CheckIn.objects.filter(
+            Center=currentCenter, Incident=currentIncident).values_list(
+                'Person', flat=True)
+
+        persons_checked_in = models.Person.objects.filter(id__in=ids_person_chkin)
+
+        data = dict()
+        data['center'] = currentCenter
+        data['persons'] = persons_checked_in
+
+        serializer = serializers.DetailedMonitoringSerializer(data)
+
+        return Response(serializer.data)

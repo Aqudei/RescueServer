@@ -16,6 +16,8 @@ class EvacuationCenter(models.Model):
     InChargeCellphone = models.CharField(max_length=32, null=True, blank=True)
     Amenities = models.CharField(max_length=256, null=True, blank=True)
 
+    def __str__(self):
+        return self.CenterName
 
 class Household(models.Model):
     Address = models.CharField(max_length=128)

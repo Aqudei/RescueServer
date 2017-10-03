@@ -99,14 +99,33 @@ class PersonViewSet(ModelViewSet, UploadMixin):
         if incident is not None:
             center = person._Center
 
-            checkin = models.CheckIn.objects.create(
-                Incident=incident,
-                Person=person,
-                Center=center
-            )
+            if(models.CheckIn.objects.filter(
+                    Incident=incident, Person=person).exists() == False):
 
-            serializer = serializers.IncidentSerializer(incident)
-            return response.Response(serializer.data)
+                checkin = models.CheckIn.objects.create(
+                    Incident=incident,
+                    Person=person,
+                    Center=center
+                )
+
+                ids_person_chkin = models.CheckIn.objects.filter(
+                    Center=center, Incident=incident).values_list(
+                        'Person', flat=True)
+
+                persons_checked_in = models.Person.objects.filter(
+                    id__in=ids_person_chkin)
+
+                data = dict()
+                data['center'] = checkin.Center
+                data['persons'] = persons_checked_in
+
+                serializer = serializers.DetailedMonitoringSerializer(
+                    data)
+
+                #serializer = serializers.IncidentSerializer(incident)
+                return response.Response(serializer.data)
+            else:
+                return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
         return response.Response(status=status.HTTP_400_BAD_REQUEST)
 

@@ -22,14 +22,29 @@ class CenterSerializer(serializers.ModelSerializer):
         model = models.EvacuationCenter
         fields = '__all__'
 
+
 class CenterWriterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EvacuationCenter
         exclude = ('Photo',)
 
+
 class CenterMonitoringSerializer(serializers.Serializer):
     center = CenterWriterSerializer(read_only=False, many=False)
     num_evacuees = serializers.IntegerField()
+
+
+class PersonIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Person
+        fields = ('id',)
+
+
+class DetailedMonitoringSerializer(serializers.Serializer):
+    center = CenterSerializer(read_only=True)
+    persons = PersonIdSerializer(
+        many=True, read_only=True)
+
 
 class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
