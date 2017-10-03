@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import detail_route
 from . import models, serializers
-from rest_framework import status, response
+from rest_framework import status, response, exceptions
 import json
 # Create your views here.
 
@@ -59,8 +59,13 @@ class PersonViewSet(ModelViewSet, UploadMixin):
         person = self.get_object()
         household = models.Household.objects.get(
             pk=request.data['household_id'])
-        
-        print(household)
+
+        desired = not household.members.filter(id=person.id).exists()
+
+        if desired:
+            if household.members.filter(IsHead=True).exists() and person.IsHead:
+                raise exceptions.ValidationError(
+                    detail=["household already has a head family.", ], code=status.HTTP_400_BAD_REQUEST)
 
         if person._Household is not None and \
                 person._Household.id == household.id:
@@ -69,7 +74,7 @@ class PersonViewSet(ModelViewSet, UploadMixin):
             person._Household = household
 
         person.save()
-        
+
         household.refresh_from_db()
         serializer = serializers.HouseholdSerializer(household)
         return response.Response(serializer.data)
@@ -132,6 +137,7 @@ class IncidentsViewSet(ModelViewSet):
         incidents = models.Incident.objects.filter(
             id__in=[incident.id, incident2.id])
         print(incidents)
-        serializer = serializers.IncidentSerializer(data=incidents, many=True)
+        serializer = serializers.IncidentSerializer(
+            data=incidents, many=True)
         serializer.is_valid()
         return response.Response(serializer.data)

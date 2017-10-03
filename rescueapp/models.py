@@ -17,7 +17,10 @@ class Household(models.Model):
     IsOwned = models.BooleanField(default=True)
     Photo = models.ImageField(null=True)
 
+
 class Person(models.Model):
+    NamePrefix = models.CharField(max_length=8, blank=True, null=True)
+    NameSuffix = models.CharField(max_length=8, blank=True, null=True)
     FirstName = models.CharField(max_length=32)
     MiddleName = models.CharField(max_length=32)
     LastName = models.CharField(max_length=32)
