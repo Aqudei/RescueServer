@@ -8,14 +8,29 @@ class EvacuationCenter(models.Model):
     Address = models.TextField()
     Limit = models.IntegerField(default=100)
     Photo = models.ImageField(null=True)
+    Longitude = models.DecimalField(
+        null=True, max_digits=18, decimal_places=15)
+    Latitude = models.DecimalField(
+        null=True, max_digits=18, decimal_places=15)
+    InCharge = models.CharField(max_length=128, null=True, blank=True)
+    InChargeCellphone = models.CharField(max_length=32, null=True, blank=True)
+    Amenities = models.CharField(max_length=256, null=True, blank=True)
 
+    def __str__(self):
+        return self.CenterName
 
 class Household(models.Model):
     Address = models.CharField(max_length=128)
-    EconomicStatus = models.CharField(max_length=32, blank=True, null=True)
+    HouseCategory = models.CharField(max_length=32, blank=True, null=True)
     HouseNumber = models.CharField(max_length=8)
-    IsOwned = models.BooleanField(default=True)
     Photo = models.ImageField(null=True)
+    IsSafeZone = models.BooleanField(default=True)
+    IsTsunamiProne = models.BooleanField(default=False)
+    IsEarthquakeProne = models.BooleanField(default=False)
+    IsFloodProne = models.BooleanField(default=False)
+    IsStormSurgeProne = models.BooleanField(default=False)
+    HouseOwnership = models.CharField(max_length=64, blank=True, null=True)
+
 
 
 class Person(models.Model):
@@ -48,6 +63,8 @@ class Person(models.Model):
     Allergies = models.CharField(blank=True, null=True, max_length=64)
     MedicalCondition = models.CharField(blank=True, null=True, max_length=64)
     MedicineRequired = models.CharField(blank=True, null=True, max_length=64)
+    NamePrefix = models.CharField(blank=True, null=True, max_length=8)
+    NameSuffix = models.CharField(blank=True, null=True, max_length=8)
 
     def __is_vulnerable(self):
         return len(self.Vulnerabilities) > 0

@@ -26,5 +26,7 @@ router.register(r'households', HouseholdViewSet, base_name='household')
 router.register(r'incidents', IncidentsViewSet, base_name='incidents')
 urlpatterns = router.urls
 urlpatterns += [
-    url(r'^statistics', views.StatisticsAPIView.as_view())
+    url(r'^statistics', views.StatisticsAPIView.as_view()),
+    url(r'^monitoring/(?P<pk>[0-9]+)/$', views.MonitoringDetailAPIView.as_view()),
+    url(r'^monitoring', views.MonitoringAPIView.as_view()),    
 ]
