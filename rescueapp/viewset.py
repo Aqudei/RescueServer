@@ -108,18 +108,13 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                     Center=center
                 )
 
-                ids_person_chkin = models.CheckIn.objects.filter(
-                    Center=center, Incident=incident).values_list(
-                        'Person', flat=True)
-
-                persons_checked_in = models.Person.objects.filter(
-                    id__in=ids_person_chkin)
-
+                center.refresh_from_db()
                 data = dict()
-                data['center'] = checkin.Center
-                data['persons'] = persons_checked_in
+                data['center'] = center
+                data['num_evacuees'] = models.CheckIn.objects.filter(
+                    Incident=incident, Center=center).count()
 
-                serializer = serializers.DetailedMonitoringSerializer(
+                serializer = serializers.CenterMonitoringSerializer(
                     data)
 
                 #serializer = serializers.IncidentSerializer(incident)
