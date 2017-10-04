@@ -14,7 +14,6 @@ class PersonWriterSerializer(serializers.ModelSerializer):
         model = models.Person
         exclude = ('Photo',)
 
-
 class CenterSerializer(serializers.ModelSerializer):
     members = PersonSerializer(many=True, read_only=True)
 
