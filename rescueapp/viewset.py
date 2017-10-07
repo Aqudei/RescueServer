@@ -267,3 +267,13 @@ class IncidentsViewSet(ModelViewSet):
             return response.Response(serializer.data)
         else:
             return self.set_active(request, pk)
+
+class PersonStatusViewSet(ModelViewSet):
+    
+    queryset = models.PersonStatus.objects.all()
+    serializer_class = serializers.PersonStatusSerializer
+
+
+class HouseholdStatusViewSet(ModelViewSet):
+    queryset = models.HouseholdStatus.objects.all()
+    serializer_class = serializers.HouseStatusSerializer

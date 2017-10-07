@@ -16,19 +16,25 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
-from .viewset import PersonViewSet, CenterViewSet, HouseholdViewSet, IncidentsViewSet
+from . import viewset as viewsets
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'people', PersonViewSet, base_name='person')
-router.register(r'centers', CenterViewSet, base_name='center')
-router.register(r'households', HouseholdViewSet, base_name='household')
-router.register(r'incidents', IncidentsViewSet, base_name='incidents')
+router.register(r'people', viewsets.PersonViewSet, base_name='person')
+router.register(r'centers', viewsets.CenterViewSet, base_name='center')
+router.register(r'households', viewsets.HouseholdViewSet,
+                base_name='household')
+router.register(r'incidents', viewsets.IncidentsViewSet, base_name='incidents')
+router.register(r'house_status', viewsets.HouseholdStatusViewSet)
+router.register(r'people_status', viewsets.PersonStatusViewSet)
 urlpatterns = router.urls
 urlpatterns += [
     url(r'^statistics', views.StatisticsAPIView.as_view()),
-    url(r'^monitoring/(?P<pk>[0-9]+)/$', views.MonitoringDetailAPIView.as_view()),
-    url(r'^monitoring', views.MonitoringAPIView.as_view()),    
-    url(r'^reports/people/(?P<incident>[0-9]+)/$', views.PeopleReportAPIView.as_view()),   
-    url(r'^reports/households/(?P<incident>[0-9]+)/$', views.HouseholdsReportAPIView.as_view()),   
+    url(r'^monitoring/(?P<pk>[0-9]+)/$',
+        views.MonitoringDetailAPIView.as_view()),
+    url(r'^monitoring', views.MonitoringAPIView.as_view()),
+    url(r'^reports/people/(?P<incident>[0-9]+)/$',
+        views.PeopleReportAPIView.as_view()),
+    url(r'^reports/households/(?P<incident>[0-9]+)/$',
+        views.HouseholdsReportAPIView.as_view()),
 ]
