@@ -92,6 +92,8 @@ class PersonViewSet(ModelViewSet, UploadMixin):
     @detail_route(methods=['post', ])
     def check_in(self, request, pk=None):
 
+        scope = request.data.get('scope', 'self')
+
         person = self.get_object()
         incident = models.Incident.objects.filter(
             IsActive=True).first()
@@ -106,6 +108,12 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                     Incident=incident,
                     Person=person,
                     Center=center
+                )
+
+                models.PersonStatus.objects.create(
+                    Incident=incident,
+                    Person=person,
+                    Status='SAFE'
                 )
 
                 center.refresh_from_db()
@@ -124,6 +132,23 @@ class PersonViewSet(ModelViewSet, UploadMixin):
 
         return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
+    @detail_route(methods=['post', ])
+    def set_status(self, request, pk=None):
+        _status = request.data.get('status', '')
+        incidentId = request.data.get('incidentId', -1)
+        incident = models.Incident.objects.get(pk=incidentId)
+
+        if models.PersonStatus.objects.filter(Incident=incident, Person=self.get_object()).exists():
+            return response.Response()
+
+        models.PersonStatus.objects.create(
+            Incident=incident,
+            Person=self.get_object(),
+            Status=_status
+        )
+
+        return response.Response()
+
 
 class CenterViewSet(MultiSerializerViewSetMixin, UploadMixin,  ModelViewSet):
     queryset = models.EvacuationCenter.objects.all()
@@ -139,6 +164,23 @@ class CenterViewSet(MultiSerializerViewSetMixin, UploadMixin,  ModelViewSet):
 class HouseholdViewSet(ModelViewSet, UploadMixin):
     queryset = models.Household.objects.all()
     serializer_class = serializers.HouseholdSerializer
+
+    @detail_route(methods=['post', ])
+    def set_status(self, request, pk=None):
+        _status = request.data.get('status', '')
+        incidentId = request.data.get('incidentId', -1)
+        incident = models.Incident.objects.get(pk=incidentId)
+
+        if models.HouseholdStatus.objects.filter(Incident=incident, Household=self.get_object()).exists()
+            return response.Response()
+
+        models.HouseholdStatus.objects.create(
+            Incident=incident,
+            Household=self.get_object(),
+            Status=_status
+        )
+
+        return response.Response()
 
 
 class IncidentsViewSet(ModelViewSet):

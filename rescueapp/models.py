@@ -19,6 +19,7 @@ class EvacuationCenter(models.Model):
     def __str__(self):
         return self.CenterName
 
+
 class Household(models.Model):
     Address = models.CharField(max_length=128)
     HouseCategory = models.CharField(max_length=32, blank=True, null=True)
@@ -30,7 +31,6 @@ class Household(models.Model):
     IsFloodProne = models.BooleanField(default=False)
     IsStormSurgeProne = models.BooleanField(default=False)
     HouseOwnership = models.CharField(max_length=64, blank=True, null=True)
-
 
 
 class Person(models.Model):
@@ -84,3 +84,14 @@ class CheckIn(models.Model):
     Incident = models.ForeignKey(Incident, related_name='check_ins')
     Person = models.ForeignKey(Person, related_name='check_ins')
     Center = models.ForeignKey(EvacuationCenter, related_name='check_ins')
+
+
+class PersonStatus(models.Model):
+    Incident = models.ForeignKey(Incident)
+    Person = models.ForeignKey(Person)
+    Status = models.CharField(blank=True, null=True, max_length=16)
+
+class HouseholdStatus(models.Model):
+    Incident = models.ForeignKey(Incident)
+    Household = models.ForeignKey(Household)
+    Status = models.CharField(blank=True, null=True, max_length=16)
