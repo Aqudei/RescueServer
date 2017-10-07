@@ -171,7 +171,7 @@ class HouseholdViewSet(ModelViewSet, UploadMixin):
         incidentId = request.data.get('incidentId', -1)
         incident = models.Incident.objects.get(pk=incidentId)
 
-        if models.HouseholdStatus.objects.filter(Incident=incident, Household=self.get_object()).exists()
+        if models.HouseholdStatus.objects.filter(Incident=incident, Household=self.get_object()).exists():
             return response.Response()
 
         models.HouseholdStatus.objects.create(

@@ -29,4 +29,6 @@ urlpatterns += [
     url(r'^statistics', views.StatisticsAPIView.as_view()),
     url(r'^monitoring/(?P<pk>[0-9]+)/$', views.MonitoringDetailAPIView.as_view()),
     url(r'^monitoring', views.MonitoringAPIView.as_view()),    
+    url(r'^reports/people/(?P<incident>[0-9]+)/$', views.PeopleReportAPIView.as_view()),   
+    url(r'^reports/households/(?P<incident>[0-9]+)/$', views.HouseholdsReportAPIView.as_view()),   
 ]

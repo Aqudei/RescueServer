@@ -1,6 +1,6 @@
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
-
+from django.db.models import Count
 from rest_framework.response import Response
 from . import models
 from . import serializers
@@ -69,3 +69,16 @@ class MonitoringDetailAPIView(APIView):
         serializer = serializers.DetailedMonitoringSerializer(data)
 
         return Response(serializer.data)
+
+
+class PeopleReportAPIView(APIView):
+    def get(self, request, incident=None):
+        people = models.PersonStatus.objects.filter(Incident=incident)
+        serializer = serializers.PersonStatusSerializer(people, many=True)
+        return Response(serializer.data)
+
+class HouseholdsReportAPIView(APIView):
+    def get(self, request, incident=None):
+        houses = models.HouseholdStatus.objects.filter(
+            Incident=incident).annotate(num_fam=Count('Household__members'))
+        return Response()
