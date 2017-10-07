@@ -37,7 +37,7 @@ class Person(models.Model):
     NamePrefix = models.CharField(max_length=8, blank=True, null=True)
     NameSuffix = models.CharField(max_length=8, blank=True, null=True)
     FirstName = models.CharField(max_length=32)
-    MiddleName = models.CharField(max_length=32)
+    MiddleName = models.CharField(max_length=32, blank=True, null=True)
     LastName = models.CharField(max_length=32)
     Birthday = models.CharField(
         max_length=16, blank=True, null=True, default='')

@@ -14,12 +14,44 @@ class PersonWriterSerializer(serializers.ModelSerializer):
         model = models.Person
         exclude = ('Photo',)
 
+
 class CenterSerializer(serializers.ModelSerializer):
     members = PersonSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.EvacuationCenter
         fields = '__all__'
+
+
+class SimplePersonSerializer(serializers.ModelSerializer):
+
+    _Household = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='HouseNumber'
+    )
+
+    class Meta:
+        model = models.Person
+        fields = (
+            'NameSuffix', 'FirstName',
+            'MiddleName', 'LastName',
+            'Birthday', '_Household'
+        )
+
+
+class PersonStatusSerializer(serializers.ModelSerializer):
+    Person = SimplePersonSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = models.PersonStatus
+        exclude = ('Incident',)
+
+
+class HouseStatusSerializer(serializers.Serializer):
+    HouseNumber = serializers.CharField()
+    FamilyHead = serializers.CharField()
+    NumberOfMembers = serializers.IntegerField()
 
 
 class CenterWriterSerializer(serializers.ModelSerializer):
