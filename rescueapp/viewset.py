@@ -98,39 +98,71 @@ class PersonViewSet(ModelViewSet, UploadMixin):
         incident = models.Incident.objects.filter(
             IsActive=True).first()
 
+        center = person._Center
+
         if incident is not None:
-            center = person._Center
+            if scope == 'self':
 
-            if(models.CheckIn.objects.filter(
-                    Incident=incident, Person=person).exists() == False):
+                if(models.CheckIn.objects.filter(
+                        Incident=incident, Person=person).exists() == False):
 
-                checkin = models.CheckIn.objects.create(
-                    Incident=incident,
-                    Person=person,
-                    Center=center
-                )
+                    checkin = models.CheckIn.objects.create(
+                        Incident=incident,
+                        Person=person,
+                        Center=center
+                    )
 
-                models.PersonStatus.objects.create(
-                    Incident=incident,
-                    Person=person,
-                    Status='SAFE'
-                )
+                    models.PersonStatus.objects.create(
+                        Incident=incident,
+                        Person=person,
+                        Status='SAFE'
+                    )
 
+                    center.refresh_from_db()
+                    data = dict()
+                    data['center'] = center
+                    data['num_evacuees'] = models.CheckIn.objects.filter(
+                        Incident=incident, Center=center).count()
+
+                    serializer = serializers.CenterMonitoringSerializer(
+                        data)
+
+                    #serializer = serializers.IncidentSerializer(incident)
+                    return response.Response(serializer.data)
+            else:
+
+                people = models.Person.objects.filter(
+                    _Household=person._Household)
+
+                for _person in people:
+
+                    if(models.CheckIn.objects.filter(Incident=incident, Person=_person).exists() == False):
+
+                        checkin = models.CheckIn.objects.create(
+                            Incident=incident,
+                            Person=_person,
+                            Center=center
+                        )
+
+                    models.PersonStatus.objects.create(
+                        Incident=incident,
+                        Person=_person,
+                        Status='SAFE'
+                    )
+                
                 center.refresh_from_db()
                 data = dict()
                 data['center'] = center
                 data['num_evacuees'] = models.CheckIn.objects.filter(
                     Incident=incident, Center=center).count()
 
-                serializer = serializers.CenterMonitoringSerializer(
-                    data)
+                serializer = serializers.CenterMonitoringSerializer(data)
 
                 #serializer = serializers.IncidentSerializer(incident)
                 return response.Response(serializer.data)
-            else:
-                return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
-        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route(methods=['post', ])
     def set_status(self, request, pk=None):
@@ -171,7 +203,7 @@ class HouseholdViewSet(ModelViewSet, UploadMixin):
         incidentId = request.data.get('incidentId', -1)
         incident = models.Incident.objects.get(pk=incidentId)
 
-        if models.HouseholdStatus.objects.filter(Incident=incident, Household=self.get_object()).exists()
+        if models.HouseholdStatus.objects.filter(Incident=incident, Household=self.get_object()).exists():
             return response.Response()
 
         models.HouseholdStatus.objects.create(
