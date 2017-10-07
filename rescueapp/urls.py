@@ -25,7 +25,7 @@ router.register(r'centers', viewsets.CenterViewSet, base_name='center')
 router.register(r'households', viewsets.HouseholdViewSet,
                 base_name='household')
 router.register(r'incidents', viewsets.IncidentsViewSet, base_name='incidents')
-router.register(r'house_status', viewsets.HouseholdStatusViewSet)
+router.register(r'houses_status', viewsets.HouseholdStatusViewSet)
 router.register(r'people_status', viewsets.PersonStatusViewSet)
 urlpatterns = router.urls
 urlpatterns += [

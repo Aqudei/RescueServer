@@ -81,4 +81,7 @@ class HouseholdsReportAPIView(APIView):
     def get(self, request, incident=None):
         houses = models.HouseholdStatus.objects.filter(
             Incident=incident).annotate(num_fam=Count('Household__members'))
-        return Response()
+        
+        serializer = serializers.HouseStatusSerializer(houses, many=True)
+
+        return Response(serializer.data)

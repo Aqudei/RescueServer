@@ -89,9 +89,10 @@ class CheckIn(models.Model):
 class PersonStatus(models.Model):
     Incident = models.ForeignKey(Incident)
     Person = models.ForeignKey(Person)
-    Status = models.CharField(blank=True, null=True, max_length=16)
+    Status = models.CharField(blank=True, null=True, max_length=32)
+
 
 class HouseholdStatus(models.Model):
     Incident = models.ForeignKey(Incident)
     Household = models.ForeignKey(Household)
-    Status = models.CharField(blank=True, null=True, max_length=16)
+    Status = models.CharField(blank=True, null=True, max_length=32)

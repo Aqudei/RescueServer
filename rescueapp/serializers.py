@@ -48,10 +48,12 @@ class PersonStatusSerializer(serializers.ModelSerializer):
         exclude = ('Incident',)
 
 
-class HouseStatusSerializer(serializers.Serializer):
-    HouseNumber = serializers.CharField()
-    FamilyHead = serializers.CharField()
-    NumberOfMembers = serializers.IntegerField()
+class HouseStatusSerializer(serializers.ModelSerializer):
+    num_fam = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = models.HouseholdStatus
+        fields = '__all__'
 
 
 class CenterWriterSerializer(serializers.ModelSerializer):

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import detail_route
 from . import models, serializers
+from django.db.models import Count
 from rest_framework import status, response
 import json
 # Create your views here.
@@ -149,7 +150,7 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                         Person=_person,
                         Status='SAFE'
                     )
-                
+
                 center.refresh_from_db()
                 data = dict()
                 data['center'] = center
@@ -268,12 +269,14 @@ class IncidentsViewSet(ModelViewSet):
         else:
             return self.set_active(request, pk)
 
+
 class PersonStatusViewSet(ModelViewSet):
-    
+
     queryset = models.PersonStatus.objects.all()
     serializer_class = serializers.PersonStatusSerializer
 
 
 class HouseholdStatusViewSet(ModelViewSet):
-    queryset = models.HouseholdStatus.objects.all()
+    queryset = models.HouseholdStatus.objects.all().annotate(
+        num_fam=Count('Household__members'))
     serializer_class = serializers.HouseStatusSerializer
