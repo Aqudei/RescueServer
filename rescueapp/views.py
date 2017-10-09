@@ -35,12 +35,15 @@ class MonitoringAPIView(APIView):
     def get(self, request):
         currentIncident = models.Incident.objects.get(IsActive=True)
         centers = models.EvacuationCenter.objects.all()
+
         datas = list()
+
         for c in centers:
             data = dict()
             data['center'] = c
             data['num_evacuees'] = models.CheckIn.objects.filter(
                 Incident=currentIncident, Center=c).count()
+            data['num_members'] = c.members.count()
             datas.append(data)
 
         serializer = serializers.CenterMonitoringSerializer(datas, many=True)
@@ -55,33 +58,26 @@ class MonitoringDetailAPIView(APIView):
         currentIncident = models.Incident.objects.get(IsActive=True)
         currentCenter = models.EvacuationCenter.objects.get(pk=pk)
 
-        ids_person_chkin = models.CheckIn.objects.filter(
-            Center=currentCenter, Incident=currentIncident).values_list(
-                'Person', flat=True)
+        people_checked_in = models.CheckIn.objects.filter(
+            Center=currentCenter, Incident=currentIncident)
 
-        persons_checked_in = models.Person.objects.filter(
-            id__in=ids_person_chkin)
-
-        data = dict()
-        data['center'] = currentCenter
-        data['persons'] = persons_checked_in
-
-        serializer = serializers.DetailedMonitoringSerializer(data)
-
+        serializer = serializers.CheckInMonitoringSerializer(
+            people_checked_in, many=True)
         return Response(serializer.data)
 
 
 class PeopleReportAPIView(APIView):
     def get(self, request, incident=None):
-        people = models.PersonStatus.objects.filter(Incident=incident)
+        people = models.CheckIn.objects.filter(Incident=incident)
         serializer = serializers.PersonStatusSerializer(people, many=True)
         return Response(serializer.data)
+
 
 class HouseholdsReportAPIView(APIView):
     def get(self, request, incident=None):
         houses = models.HouseholdStatus.objects.filter(
             Incident=incident).annotate(num_fam=Count('Household__members'))
-        
+
         serializer = serializers.HouseStatusSerializer(houses, many=True)
 
         return Response(serializer.data)

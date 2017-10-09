@@ -71,6 +71,11 @@ class Person(models.Model):
 
     is_vulnerable = property(__is_vulnerable)
 
+    def __fullname(self):
+        return "%s, %s %s" % (self.LastName, self.FirstName, self.MiddleName)
+
+    fullname = property(__fullname)
+
 
 class Incident(models.Model):
     IncidentName = models.CharField(max_length=32)
@@ -84,6 +89,12 @@ class CheckIn(models.Model):
     Incident = models.ForeignKey(Incident, related_name='check_ins')
     Person = models.ForeignKey(Person, related_name='check_ins')
     Center = models.ForeignKey(EvacuationCenter, related_name='check_ins')
+    Status = models.CharField(
+        blank=True,
+        null=True,
+        max_length=32,
+        default='safe'
+    )
 
 
 class PersonStatus(models.Model):

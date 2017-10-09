@@ -26,15 +26,15 @@ router.register(r'households', viewsets.HouseholdViewSet,
                 base_name='household')
 router.register(r'incidents', viewsets.IncidentsViewSet, base_name='incidents')
 router.register(r'houses_status', viewsets.HouseholdStatusViewSet)
-router.register(r'people_status', viewsets.PersonStatusViewSet)
+router.register(r'checkins', viewsets.CheckInViewSet)
 urlpatterns = router.urls
 urlpatterns += [
     url(r'^statistics', views.StatisticsAPIView.as_view()),
     url(r'^monitoring/(?P<pk>[0-9]+)/$',
         views.MonitoringDetailAPIView.as_view()),
     url(r'^monitoring', views.MonitoringAPIView.as_view()),
-    url(r'^reports/people/(?P<incident>[0-9]+)/$',
+    url(r'^reports/people/incident/(?P<incident>[0-9]+)/$',
         views.PeopleReportAPIView.as_view()),
-    url(r'^reports/households/(?P<incident>[0-9]+)/$',
+    url(r'^reports/households/incident/(?P<incident>[0-9]+)/$',
         views.HouseholdsReportAPIView.as_view()),
 ]

@@ -44,7 +44,7 @@ class PersonStatusSerializer(serializers.ModelSerializer):
     Person = SimplePersonSerializer(many=False, read_only=True)
 
     class Meta:
-        model = models.PersonStatus
+        model = models.CheckIn
         exclude = ('Incident',)
 
 
@@ -57,17 +57,22 @@ class HouseStatusSerializer(serializers.ModelSerializer):
 
 
 class CenterWriterSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.EvacuationCenter
         exclude = ('Photo',)
 
 
 class CenterMonitoringSerializer(serializers.Serializer):
+    num_members = serializers.IntegerField(read_only=True)
     center = CenterWriterSerializer(read_only=False, many=False)
     num_evacuees = serializers.IntegerField()
 
 
 class PersonIdSerializer(serializers.ModelSerializer):
+
+    Status = serializers.CharField(read_only=True)
+
     class Meta:
         model = models.Person
         fields = ('id',)
@@ -114,4 +119,30 @@ class CheckInSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
+        model = models.CheckIn
+
+
+class PersonIdAndNameSerializer(serializers.ModelSerializer):
+
+    fullname = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = models.Person
+        fields = ('id', 'fullname')
+
+
+class CenterWithMembersSerializer(serializers.ModelSerializer):
+    members = PersonIdAndNameSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = models.EvacuationCenter
+        fields = ('members',)
+
+
+class CheckInMonitoringSerializer(serializers.ModelSerializer):
+
+    fullname = serializers.CharField(read_only=True, source='Person.fullname')
+
+    class Meta:
+        exclude = ('id',)
         model = models.CheckIn

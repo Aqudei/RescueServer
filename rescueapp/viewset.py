@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import detail_route
 from . import models, serializers
-from django.db.models import Count
+from django.db.models import Count, When, Case, Q
 from rest_framework import status, response
 import json
 # Create your views here.
@@ -94,6 +94,7 @@ class PersonViewSet(ModelViewSet, UploadMixin):
     def check_in(self, request, pk=None):
 
         scope = request.data.get('scope', 'self')
+        _status = request.data.get('status', 'safe')
 
         person = self.get_object()
         incident = models.Incident.objects.filter(
@@ -110,16 +111,11 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                     checkin = models.CheckIn.objects.create(
                         Incident=incident,
                         Person=person,
-                        Center=center
+                        Center=center,
+                        Status=_status
                     )
 
-                    models.PersonStatus.objects.create(
-                        Incident=incident,
-                        Person=person,
-                        Status='SAFE'
-                    )
-
-                    center.refresh_from_db()
+                    ''' center.refresh_from_db()
                     data = dict()
                     data['center'] = center
                     data['num_evacuees'] = models.CheckIn.objects.filter(
@@ -129,7 +125,7 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                         data)
 
                     #serializer = serializers.IncidentSerializer(incident)
-                    return response.Response(serializer.data)
+                    return response.Response(serializer.data) '''
             else:
 
                 people = models.Person.objects.filter(
@@ -142,28 +138,26 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                         checkin = models.CheckIn.objects.create(
                             Incident=incident,
                             Person=_person,
-                            Center=center
+                            Center=center,
+                            Status=_status
                         )
 
-                    models.PersonStatus.objects.create(
-                        Incident=incident,
-                        Person=_person,
-                        Status='SAFE'
-                    )
+            center.refresh_from_db()
+            data = dict()
+            data['center'] = center
+            data['num_evacuees'] = models.CheckIn.objects.filter(
+                Incident=incident, Center=center).count()
 
-                center.refresh_from_db()
-                data = dict()
-                data['center'] = center
-                data['num_evacuees'] = models.CheckIn.objects.filter(
-                    Incident=incident, Center=center).count()
+            serializer = serializers.CenterMonitoringSerializer(data)
 
-                serializer = serializers.CenterMonitoringSerializer(data)
-
-                #serializer = serializers.IncidentSerializer(incident)
-                return response.Response(serializer.data)
+            #serializer = serializers.IncidentSerializer(incident)
+            return response.Response(serializer.data)
 
         else:
-            return response.Response(status=status.HTTP_400_BAD_REQUEST)
+            return response.Response(
+                {"message": "No Active Calamity/Disaster"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     @detail_route(methods=['post', ])
     def set_status(self, request, pk=None):
@@ -269,6 +263,9 @@ class IncidentsViewSet(ModelViewSet):
         else:
             return self.set_active(request, pk)
 
+class CheckInViewSet(ModelViewSet):
+    queryset = models.CheckIn.objects.all()
+    serializer_class = serializers.CheckInSerializer
 
 class PersonStatusViewSet(ModelViewSet):
 
