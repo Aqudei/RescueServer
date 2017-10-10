@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from . import models, serializers
 from django.db.models import Count, When, Case, Q
 from rest_framework import status, response
@@ -114,18 +114,6 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                         Center=center,
                         Status=_status
                     )
-
-                    ''' center.refresh_from_db()
-                    data = dict()
-                    data['center'] = center
-                    data['num_evacuees'] = models.CheckIn.objects.filter(
-                        Incident=incident, Center=center).count()
-
-                    serializer = serializers.CenterMonitoringSerializer(
-                        data)
-
-                    #serializer = serializers.IncidentSerializer(incident)
-                    return response.Response(serializer.data) '''
             else:
 
                 people = models.Person.objects.filter(
@@ -165,10 +153,10 @@ class PersonViewSet(ModelViewSet, UploadMixin):
         incidentId = request.data.get('incidentId', -1)
         incident = models.Incident.objects.get(pk=incidentId)
 
-        if models.PersonStatus.objects.filter(Incident=incident, Person=self.get_object()).exists():
+        if models.CheckIn.objects.filter(Incident=incident, Person=self.get_object()).exists():
             return response.Response()
 
-        models.PersonStatus.objects.create(
+        models.CheckIn.objects.create(
             Incident=incident,
             Person=self.get_object(),
             Status=_status
@@ -195,19 +183,29 @@ class HouseholdViewSet(ModelViewSet, UploadMixin):
     @detail_route(methods=['post', ])
     def set_status(self, request, pk=None):
         _status = request.data.get('status', '')
-        incidentId = request.data.get('incidentId', -1)
-        incident = models.Incident.objects.get(pk=incidentId)
+
+        incident = models.Incident.objects.get(IsActive=True)
 
         if models.HouseholdStatus.objects.filter(Incident=incident, Household=self.get_object()).exists():
-            return response.Response()
 
-        models.HouseholdStatus.objects.create(
+            return response.Response(
+                "Household status already set!",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        house_status = models.HouseholdStatus.objects.create(
             Incident=incident,
             Household=self.get_object(),
             Status=_status
         )
 
-        return response.Response()
+        _house_status = models.HouseholdStatus.objects.filter(
+            id=house_status.id
+        ).annotate(num_fam=Count('Household__members')).first()
+
+        serializer = serializers.HouseStatusSerializer(_house_status)
+        return response.Response(
+            serializer.data, status=status.HTTP_200_OK)
 
 
 class IncidentsViewSet(ModelViewSet):
@@ -263,9 +261,33 @@ class IncidentsViewSet(ModelViewSet):
         else:
             return self.set_active(request, pk)
 
+    @detail_route()
+    def toll_people(self, request, pk=None):
+        checkins = models.CheckIn.objects.filter(
+            Incident=self.get_object())
+
+        _tolls = checkins.values('Status').annotate(
+            count=Count('Status')).order_by('count')
+
+        serializer = serializers.TollSerializer(_tolls, many=True)
+        return response.Response(serializer.data)
+
+    @detail_route()
+    def toll_households(self, request, pk=None):
+        house_stats = models.HouseholdStatus.objects.filter(
+            Incident=self.get_object())
+
+        _tolls = house_stats.values('Status').annotate(
+            count=Count('Status')).order_by('count')
+
+        serializer = serializers.TollSerializer(_tolls, many=True)
+        return response.Response(serializer.data)
+
+
 class CheckInViewSet(ModelViewSet):
     queryset = models.CheckIn.objects.all()
     serializer_class = serializers.CheckInSerializer
+
 
 class PersonStatusViewSet(ModelViewSet):
 

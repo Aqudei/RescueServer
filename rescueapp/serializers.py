@@ -50,6 +50,13 @@ class PersonStatusSerializer(serializers.ModelSerializer):
 
 class HouseStatusSerializer(serializers.ModelSerializer):
     num_fam = serializers.IntegerField(read_only=True)
+    Household = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='HouseNumber'
+    )
+
+    family_head = serializers.CharField(read_only=True)
 
     class Meta:
         model = models.HouseholdStatus
@@ -141,8 +148,15 @@ class CenterWithMembersSerializer(serializers.ModelSerializer):
 
 class CheckInMonitoringSerializer(serializers.ModelSerializer):
 
-    fullname = serializers.CharField(read_only=True, source='Person.fullname')
+    fullname = serializers.CharField(
+        read_only=True, source='Person.fullname'
+    )
 
     class Meta:
         exclude = ('id',)
         model = models.CheckIn
+
+
+class TollSerializer(serializers.Serializer):
+    Status = serializers.CharField()
+    count = serializers.IntegerField()

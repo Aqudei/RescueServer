@@ -32,6 +32,15 @@ class Household(models.Model):
     IsStormSurgeProne = models.BooleanField(default=False)
     HouseOwnership = models.CharField(max_length=64, blank=True, null=True)
 
+    def __family_head(self):
+
+        if self.members.filter(IsHead=True).exists():
+            return self.members.get(IsHead=True).fullname
+        else:
+            return ""
+
+    family_head = property(__family_head)
+
 
 class Person(models.Model):
     NamePrefix = models.CharField(max_length=8, blank=True, null=True)
@@ -95,6 +104,7 @@ class CheckIn(models.Model):
         max_length=32,
         default='safe'
     )
+    ViaSMS = models.BooleanField(default=False)
 
 
 class PersonStatus(models.Model):
@@ -107,3 +117,8 @@ class HouseholdStatus(models.Model):
     Incident = models.ForeignKey(Incident)
     Household = models.ForeignKey(Household)
     Status = models.CharField(blank=True, null=True, max_length=32)
+
+    def __family_head(self):
+        return self.Household.family_head
+
+    family_head = property(__family_head)
