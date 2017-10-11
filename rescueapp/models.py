@@ -89,8 +89,17 @@ class Person(models.Model):
 class Incident(models.Model):
     IncidentName = models.CharField(max_length=32)
     DateOccured = models.DateTimeField(auto_now_add=True)
+    DateFinished = models.DateTimeField(null=True)
     Photo = models.ImageField(null=True)
     IsActive = models.BooleanField(default=False)
+    IncidentType = models.CharField(
+        max_length=64, null=True, blank=True)
+    EarthquakeMagnitude = models.CharField(
+        max_length=8, null=True, blank=True)
+    EarthquakeEpicenter = models.CharField(
+        max_length=32, null=True, blank=True)
+    TyphoonSignal = models.CharField(
+        max_length=8, null=True, blank=True)
 
 
 class CheckIn(models.Model):

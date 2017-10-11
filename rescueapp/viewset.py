@@ -272,17 +272,6 @@ class IncidentsViewSet(ModelViewSet):
         serializer = serializers.TollSerializer(_tolls, many=True)
         return response.Response(serializer.data)
 
-    @detail_route()
-    def toll_households(self, request, pk=None):
-        house_stats = models.HouseholdStatus.objects.filter(
-            Incident=self.get_object())
-
-        _tolls = house_stats.values('Status').annotate(
-            count=Count('Status')).order_by('count')
-
-        serializer = serializers.TollSerializer(_tolls, many=True)
-        return response.Response(serializer.data)
-
 
 class CheckInViewSet(ModelViewSet):
     queryset = models.CheckIn.objects.all()
@@ -299,3 +288,12 @@ class HouseholdStatusViewSet(ModelViewSet):
     queryset = models.HouseholdStatus.objects.all().annotate(
         num_fam=Count('Household__members'))
     serializer_class = serializers.HouseStatusSerializer
+
+    @list_route()
+    def active_incident(self, request):
+        incident = models.Incident.objects.get(IsActive=True)
+
+        statuses = models.HouseholdStatus.objects.filter(Incident=incident).annotate(
+            num_fam=Count('Household__members'))
+        serializer = serializers.HouseStatusSerializer(statuses, many=True)
+        return response.Response(serializer.data)
