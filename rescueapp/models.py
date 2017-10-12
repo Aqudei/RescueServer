@@ -8,17 +8,45 @@ class EvacuationCenter(models.Model):
     Address = models.TextField()
     Limit = models.IntegerField(default=100)
     Photo = models.ImageField(null=True)
+    Longitude = models.DecimalField(
+        null=True, max_digits=18, decimal_places=15)
+    Latitude = models.DecimalField(
+        null=True, max_digits=18, decimal_places=15)
+    InCharge = models.CharField(max_length=128, null=True, blank=True)
+    InChargeCellphone = models.CharField(max_length=32, null=True, blank=True)
+    Amenities = models.CharField(max_length=256, null=True, blank=True)
+
+    def __str__(self):
+        return self.CenterName
 
 
 class Household(models.Model):
     Address = models.CharField(max_length=128)
-    EconomicStatus = models.CharField(max_length=32, blank=True, null=True)
+    HouseCategory = models.CharField(max_length=32, blank=True, null=True)
     HouseNumber = models.CharField(max_length=8)
+    Photo = models.ImageField(null=True)
+    IsSafeZone = models.BooleanField(default=True)
+    IsTsunamiProne = models.BooleanField(default=False)
+    IsEarthquakeProne = models.BooleanField(default=False)
+    IsFloodProne = models.BooleanField(default=False)
+    IsStormSurgeProne = models.BooleanField(default=False)
+    HouseOwnership = models.CharField(max_length=64, blank=True, null=True)
+
+    def __family_head(self):
+
+        if self.members.filter(IsHead=True).exists():
+            return self.members.get(IsHead=True).fullname
+        else:
+            return ""
+
+    family_head = property(__family_head)
 
 
 class Person(models.Model):
+    NamePrefix = models.CharField(max_length=8, blank=True, null=True)
+    NameSuffix = models.CharField(max_length=8, blank=True, null=True)
     FirstName = models.CharField(max_length=32)
-    MiddleName = models.CharField(max_length=32)
+    MiddleName = models.CharField(max_length=32, blank=True, null=True)
     LastName = models.CharField(max_length=32)
     Birthday = models.CharField(
         max_length=16, blank=True, null=True, default='')
@@ -31,6 +59,8 @@ class Person(models.Model):
         max_length=128, blank=True, null=True)
     _Household = models.ForeignKey(
         Household, related_name='members', null=True)
+    _Center = models.ForeignKey(
+        EvacuationCenter, related_name='members', null=True)
     IsHead = models.BooleanField(default=False)
     Gender = models.CharField(max_length=8, default='MALE')
     EducationalAttainment = models.CharField(
@@ -42,17 +72,34 @@ class Person(models.Model):
     Allergies = models.CharField(blank=True, null=True, max_length=64)
     MedicalCondition = models.CharField(blank=True, null=True, max_length=64)
     MedicineRequired = models.CharField(blank=True, null=True, max_length=64)
+    NamePrefix = models.CharField(blank=True, null=True, max_length=8)
+    NameSuffix = models.CharField(blank=True, null=True, max_length=8)
 
     def __is_vulnerable(self):
         return len(self.Vulnerabilities) > 0
 
     is_vulnerable = property(__is_vulnerable)
 
+    def __fullname(self):
+        return "%s, %s %s" % (self.LastName, self.FirstName, self.MiddleName)
+
+    fullname = property(__fullname)
+
 
 class Incident(models.Model):
     IncidentName = models.CharField(max_length=32)
     DateOccured = models.DateTimeField(auto_now_add=True)
+    DateFinished = models.DateTimeField(null=True)
     Photo = models.ImageField(null=True)
+    IsActive = models.BooleanField(default=False)
+    IncidentType = models.CharField(
+        max_length=64, null=True, blank=True)
+    EarthquakeMagnitude = models.CharField(
+        max_length=8, null=True, blank=True)
+    EarthquakeEpicenter = models.CharField(
+        max_length=32, null=True, blank=True)
+    TyphoonSignal = models.CharField(
+        max_length=8, null=True, blank=True)
 
 
 class CheckIn(models.Model):
@@ -60,3 +107,27 @@ class CheckIn(models.Model):
     Incident = models.ForeignKey(Incident, related_name='check_ins')
     Person = models.ForeignKey(Person, related_name='check_ins')
     Center = models.ForeignKey(EvacuationCenter, related_name='check_ins')
+    Status = models.CharField(
+        blank=True,
+        null=True,
+        max_length=32,
+        default='safe'
+    )
+    ViaSMS = models.BooleanField(default=False)
+
+
+class PersonStatus(models.Model):
+    Incident = models.ForeignKey(Incident)
+    Person = models.ForeignKey(Person)
+    Status = models.CharField(blank=True, null=True, max_length=32)
+
+
+class HouseholdStatus(models.Model):
+    Incident = models.ForeignKey(Incident)
+    Household = models.ForeignKey(Household)
+    Status = models.CharField(blank=True, null=True, max_length=32)
+
+    def __family_head(self):
+        return self.Household.family_head
+
+    family_head = property(__family_head)
