@@ -81,3 +81,19 @@ class HouseholdsReportAPIView(APIView):
         serializer = serializers.HouseStatusSerializer(houses, many=True)
 
         return Response(serializer.data)
+
+
+class TollAPIView(APIView):
+
+    def get(self, request):
+
+        incident = models.Incident.objects.get(IsActive=True)
+
+        checkins = models.CheckIn.objects.filter(
+            Incident=incident)
+
+        _tolls = checkins.values('Status').annotate(
+            count=Count('Status')).order_by('count')
+
+        serializer = serializers.TollSerializer(_tolls, many=True)
+        return Response(serializer.data)

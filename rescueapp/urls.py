@@ -37,4 +37,5 @@ urlpatterns += [
         views.PeopleReportAPIView.as_view()),
     url(r'^reports/households/incident/(?P<incident>[0-9]+)/$',
         views.HouseholdsReportAPIView.as_view()),
+    url(r'^tolls/$', views.TollAPIView.as_view()),
 ]
