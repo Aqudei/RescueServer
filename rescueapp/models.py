@@ -2,8 +2,18 @@ from django.db import models
 
 # Create your models here.
 
+class AddressInfo(models.Model):
 
-class EvacuationCenter(models.Model):
+    Barangay = models.CharField(max_length=32, blank=True, null=True)
+    Municipality = models.CharField(max_length=32, blank=True, null=True)
+    Province = models.CharField(max_length=32, blank=True, null=True)
+    City = models.CharField(max_length=32, blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class EvacuationCenter(AddressInfo):
     CenterName = models.CharField(max_length=128)
     Address = models.TextField()
     Limit = models.IntegerField(default=100)
@@ -12,9 +22,9 @@ class EvacuationCenter(models.Model):
         null=True, max_digits=18, decimal_places=15)
     Latitude = models.DecimalField(
         null=True, max_digits=18, decimal_places=15)
-    InCharge = models.CharField(max_length=128, null=True, blank=True)
-    InChargeCellphone = models.CharField(max_length=32, null=True, blank=True)
-    Amenities = models.CharField(max_length=256, null=True, blank=True)
+    InCharge = models.CharField(max_length=256, null=True, blank=True)
+    InChargeCellphone = models.CharField(max_length=64, null=True, blank=True)
+    Amenities = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.CenterName
