@@ -48,12 +48,15 @@ class TheVulnerablesSerializer(serializers.ModelSerializer):
         slug_field='Address'
     )
 
+    fullname = serializers.CharField(read_only=True)
+
     class Meta:
         model = models.Person
         fields = (
             'NameSuffix', 'FirstName',
             'MiddleName', 'LastName',
-            'Birthday', '_Household', 'Gender'
+            'Birthday', '_Household', 'Gender',
+            'Vulnerabilities', 'fullname'
         )
 
 
