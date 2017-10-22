@@ -111,6 +111,17 @@ class HouseholdSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class HouseholdsInDangerZoneSerializer(serializers.ModelSerializer):
+    family_head = serializers.CharField(read_only=True)
+    num_fam = serializers.IntegerField()
+    num_vulnerable = serializers.IntegerField()
+
+
+    class Meta:
+        model = models.Household
+        fields = '__all__'
+
+
 class PhotoSerializer(serializers.Serializer):
     Photo = serializers.ImageField()
 

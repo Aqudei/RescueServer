@@ -82,7 +82,12 @@ class PersonViewSet(ModelViewSet, UploadMixin):
                 person._Household.id == household.id:
             person._Household = None
         else:
-            person._Household = household
+            heads = household.members.filter(IsHead=True)
+            if heads.exists():
+                return response.Response(
+                    {"message": "This household already have a family head"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                person._Household = household
 
         person.save()
 
@@ -171,6 +176,12 @@ class CenterViewSet(MultiSerializerViewSetMixin, UploadMixin,  ModelViewSet):
 class HouseholdViewSet(ModelViewSet, UploadMixin):
     queryset = models.Household.objects.all()
     serializer_class = serializers.HouseholdSerializer
+
+    @list_route()
+    def list_in_dangers(self, request):
+        serializer = serializers.HouseholdsInDangerZoneSerializer(
+            models.Household.objects.all(), many=True)
+        return response.Response(serializer.data)
 
     @detail_route(methods=['post', ])
     def set_status(self, request, pk=None):

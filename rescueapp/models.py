@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class AddressInfo(models.Model):
 
     Barangay = models.CharField(max_length=32, blank=True, null=True)
@@ -48,8 +49,17 @@ class Household(models.Model):
             return self.members.get(IsHead=True).fullname
         else:
             return ""
-
     family_head = property(__family_head)
+
+    def __num_fam(self):
+        return self.members.count()
+    num_fam = property(__num_fam)
+
+    def __num_vulnerable(self):
+        return self.members.exclude(Vulnerabilities=u'').exclude(
+            Vulnerabilities__isnull=True).count()
+
+    num_vulnerable = property(__num_vulnerable)
 
 
 class Person(models.Model):
