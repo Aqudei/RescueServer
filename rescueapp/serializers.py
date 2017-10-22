@@ -40,6 +40,23 @@ class SimplePersonSerializer(serializers.ModelSerializer):
         )
 
 
+class TheVulnerablesSerializer(serializers.ModelSerializer):
+
+    _Household = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='Address'
+    )
+
+    class Meta:
+        model = models.Person
+        fields = (
+            'NameSuffix', 'FirstName',
+            'MiddleName', 'LastName',
+            'Birthday', '_Household', 'Gender'
+        )
+
+
 class PersonStatusSerializer(serializers.ModelSerializer):
     Person = SimplePersonSerializer(many=False, read_only=True)
 
@@ -115,7 +132,6 @@ class HouseholdsInDangerZoneSerializer(serializers.ModelSerializer):
     family_head = serializers.CharField(read_only=True)
     num_fam = serializers.IntegerField()
     num_vulnerable = serializers.IntegerField()
-
 
     class Meta:
         model = models.Household

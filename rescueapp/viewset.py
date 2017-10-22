@@ -54,6 +54,13 @@ class PersonViewSet(ModelViewSet, UploadMixin):
     queryset = models.Person.objects.all()
     serializer_class = serializers.PersonSerializer
 
+    @list_route()
+    def list_vulnerables(self, request):
+        persons = models.Person.objects.exclude(
+            Vulnerabilities=u'').exclude(Vulnerabilities__isnull=True)
+        serializer = serializers.TheVulnerablesSerializer(persons, many=True)
+        return response.Response(serializer.data)
+
     @detail_route(methods=['patch', ])
     def toggle_evacuation_membership(self, request, pk=None):
         person = self.get_object()
@@ -189,7 +196,8 @@ class HouseholdViewSet(ModelViewSet, UploadMixin):
 
         incident = models.Incident.objects.get(IsActive=True)
 
-        if models.HouseholdStatus.objects.filter(Incident=incident, Household=self.get_object()).exists():
+        if models.HouseholdStatus.objects.filter(
+                Incident=incident, Household=self.get_object()).exists():
 
             return response.Response(
                 "Household status already set!",

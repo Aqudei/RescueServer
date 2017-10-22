@@ -61,7 +61,6 @@ class Household(models.Model):
 
     num_vulnerable = property(__num_vulnerable)
 
-
 class Person(models.Model):
     NamePrefix = models.CharField(max_length=8, blank=True, null=True)
     NameSuffix = models.CharField(max_length=8, blank=True, null=True)
